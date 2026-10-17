@@ -1,0 +1,2859 @@
+<CodeBlock language="html" editable>
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Saturday Dynasty v0.9</title><style>
+
+*{box-sizing:border-box}body{margin:0;background:#0b1523;color:#eaf0fa;font:14px system-ui}header,nav,main{padding:14px;max-width:1200px;margin:auto}header{display:flex;justify-content:space-between;gap:12px;align-items:center}nav{display:flex;gap:6px;overflow:auto}button,input,select{background:#172d44;color:#eaf0fa;border:1px solid #37526c;border-radius:7px;padding:8px}button{cursor:pointer}button:hover{background:#284767}button:disabled{opacity:.4}main{min-height:70vh}section,.card{background:#142439;border:1px solid #31445a;border-radius:10px;padding:14px;margin:8px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.muted{color:#9db2c8}.big{font-size:24px;font-weight:800}.pill{display:inline-block;background:#284667;padding:4px 8px;border-radius:99px;margin:2px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.right{margin-left:auto}.good{color:#65dfad}.bad{color:#ff9b9b}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #30445b;padding:7px;text-align:left}dialog{background:#13243a;color:white;border:1px solid #55718e;border-radius:12px;max-width:92vw;max-height:90vh;overflow:auto}.spotlight{background:radial-gradient(ellipse at top,#274a6a,#101d2c 65%);border:1px solid #a3b6ce;padding:28px;text-align:center;max-width:580px}.spotlight .trophy{font-size:48px}.spotlight .eyebrow{letter-spacing:3px;color:#d5c083}.mode{border-left:5px solid #8dc9fa}.arcade{border-left:5px solid #f2bf65}@media(max-width:650px){header{display:block}nav{position:sticky;top:0;background:#0b1523;z-index:2}td,th{font-size:11px;padding:5px}}
+/* v0.9 visual polish: mobile-first broadcast-inspired cards /
+:root{color-scheme:dark;--gold:#eac979;--line:#324860;--ink:#eef5ff}
+body{background:radial-gradient(circle at 85% 0%,#1c3655 0,transparent 37%),#091320;color:var(--ink);line-height:1.5;min-height:100vh}
+header{align-items:center;padding-top:22px;padding-bottom:14px;border-bottom:1px solid #273b51}
+header h1{font-size:clamp(20px,4vw,30px);letter-spacing:.06em;margin:0;color:#fff}
+header small{color:#9cb4cf}
+nav{position:sticky;top:0;z-index:4;background:#0c1827ed;backdrop-filter:blur(16px);padding-block:12px;border-bottom:1px solid #243950;scrollbar-width:thin}
+nav button{white-space:nowrap}
+main{padding-top:24px;padding-bottom:80px}
+button{cursor:pointer;transition:background .16s,transform .16s,border-color .16s}
+button:hover:not(:disabled){background:#315474;border-color:#7da6c7}
+button:active:not(:disabled){transform:scale(.98)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.card,section{border:1px solid var(--line);background:linear-gradient(145deg,#16283c,#101f31);border-radius:13px;box-shadow:0 5px 20px #0002}
+.card{padding:17px}
+.card h3{margin-top:0}
+.big{font-weight:850;letter-spacing:-.025em}
+main h2{font-size:clamp(23px,4vw,32px);letter-spacing:-.035em}
+table{border-collapse:collapse;width:100%}th{text-align:left;color:#c5d6e7;font-size:12px;text-transform:uppercase;letter-spacing:.06em}td,th{padding:10px 8px;border-bottom:1px solid #293d53}
+section{overflow:auto}
+dialog{max-width:min(92vw,700px);max-height:85vh;overflow:auto;border:1px solid #52718c;border-radius:18px;background:#102036;color:#eef5ff;box-shadow:0 24px 80px #000b}
+dialog::backdrop{background:#030b14d9;backdrop-filter:blur(3px)}
+.spotlight{border:1px solid #b5a16e;box-shadow:0 0 0 1px #5e4b29,0 25px 90px #000b;background:radial-gradient(ellipse at 50% 5%,#355477,#102033 65%)}
+.spotlight .trophy{font-size:50px;filter:drop-shadow(0 4px 15px #e2c27655)}
+.spotlight .eyebrow{color:#ffe09b}
+.mode,.arcade{border-left-width:5px}
+@media(max-width:600px){header{padding:14px 12px}header>div:last-child{display:flex;flex-wrap:wrap;gap:5px}header button{padding:7px 9px;font-size:12px}nav{padding-inline:10px}main{padding-inline:12px}.grid{grid-template-columns:1fr 1fr}section{padding:11px}td,th{padding:7px 5px}}
+@media(prefers-reduced-motion:reduce){{transition:none!important;animation:none!important}}
+</style><body><header><div><h1>🏈 SATURDAY DYNASTY</h1><small id="sub">Offline college football manager</small></div><div><button onclick="runAudit()">Audit</button> <button onclick="exportSave()">Export</button> <button onclick="document.getElementById('importer').click()">Import</button> <input type="file" id="importer" hidden accept=".json" onchange="importSave(this)"><button onclick="newGame()">New Dynasty</button></div></header><nav id="nav"></nav><main id="app"></main><dialog id="dlg"></dialog>
+<script>
+
+</CodeBlock>
+
+'use strict';
+const KEY='saturday_dynasty_v7';
+
+const groups={
+SEC:'Alabama,Arkansas,Auburn,Florida,Georgia,Kentucky,LSU,Mississippi State,Missouri,Oklahoma,Ole Miss,South Carolina,Tennessee,Texas,Texas A&M,Vanderbilt',
+'Big Ten':'Illinois,Indiana,Iowa,Maryland,Michigan,Michigan State,Minnesota,Nebraska,Northwestern,Ohio State,Oregon,Penn State,Purdue,Rutgers,UCLA,USC,Washington,Wisconsin',
+'Big 12':'Arizona,Arizona State,Baylor,BYU,Cincinnati,Colorado,Houston,Iowa State,Kansas,Kansas State,Oklahoma State,TCU,Texas Tech,UCF,Utah,West Virginia',
+ACC:'Boston College,California,Clemson,Duke,Florida State,Georgia Tech,Louisville,Miami (FL),NC State,North Carolina,Pittsburgh,SMU,Stanford,Syracuse,Virginia,Virginia Tech,Wake Forest',
+American:'Army,Charlotte,East Carolina,FAU,Memphis,Navy,North Texas,Rice,South Florida,Temple,Tulane,Tulsa,UAB,UTSA',
+'Sun Belt':'Appalachian State,Arkansas State,Coastal Carolina,Georgia Southern,Georgia State,James Madison,Louisiana,Louisiana Tech,Louisiana-Monroe,Marshall,Old Dominion,South Alabama,Southern Miss,Troy',
+MAC:'Akron,Ball State,Bowling Green,Buffalo,Central Michigan,Eastern Michigan,Kent State,Miami (OH),Ohio,Sacramento State,Toledo,UMass,Western Michigan',
+'Mountain West':'Air Force,Hawaii,Nevada,New Mexico,North Dakota State,Northern Illinois,San Jose State,UNLV,UTEP,Wyoming',
+'Pac-12':'Boise State,Colorado State,Fresno State,Oregon State,San Diego State,Texas State,Utah State,Washington State',
+CUSA:'Delaware,FIU,Jacksonville State,Kennesaw State,Liberty,Middle Tennessee,Missouri State,New Mexico State,Sam Houston,Western Kentucky',
+Independent:'Notre Dame,UConn'
+};
+
+const real={
+'Alabama':'Kalen DeBoer',
+'Arkansas':'Ryan Silverfield',
+'Arkansas State':'Butch Jones',
+'Auburn':'Alex Golesh',
+'Georgia':'Kirby Smart',
+'Clemson':'Dabo Swinney',
+'Ohio State':'Ryan Day',
+'Indiana':'Curt Cignetti',
+'LSU':'Lane Kiffin',
+'Michigan':'Kyle Whittingham',
+'Florida':'Jon Sumrall',
+'Penn State':'Matt Campbell',
+'Notre Dame':'Marcus Freeman',
+'Texas':'Steve Sarkisian',
+'Texas A&M':'Mike Elko',
+'Ole Miss':'Pete Golding',
+'Memphis':'Charles Huff',
+'Iowa State':'Jimmy Rogers',
+'Kansas State':'Collin Klein',
+'Kentucky':'Will Stein',
+'Colorado State':'Jim Mora',
+'UConn':'Jason Candle',
+'James Madison':'Billy Napier',
+'California':'Tosh Lupoi',
+'Coastal Carolina':'Ryan Beard',
+'Virginia Tech':'James Franklin',
+'Oklahoma State':'Eric Morris',
+'Utah':'Morgan Scalley',
+'Stanford':'Tavita Pritchard',
+'Miami (FL)':'Mario Cristobal'
+};
+
+const COACH_SEEDS=`Army|Jeff Monken|92|65|3|2|Cody Worley|Daryl Dixon
+Charlotte|Tim Albin|34|36|0|6|Todd Fitch|Nate Faanes
+East Carolina|Blake Harrell|17|8|4|2|Jordan Davis|Jordan Hankins
+FAU|Zach Kittley|8|9|3|3|Zach Kittley|Brett Dewhurst
+Memphis|Charles Huff|44|26|5|1|Kevin Decker|Lance Guidry
+Navy|Brian Newberry|28|15|4|2|Drew Cronic|Ricky Brown
+North Texas|Neal Brown|76|53|4|2|Mike Bloesch|Bradley Dale Peveto
+Rice|Scott Abell|6|13|2|4|Vince Munch|Jon Kay
+South Florida|Brian Hartline|4|2|4|2|Tim Beck|Josh Aldridge
+Temple|K. C. Keeler|19|23|2|3|Tyler Walker|Brian Smith
+Tulane|Will Hall|16|33|2|3|Russ Callaway|Nate Fuqua
+Tulsa|Tre Lamb|7|11|3|3|Kevin Barbay|Mike Gray
+UAB|Alex Mortensen|6|7|3|3|Alex Mortensen|Todd Grantham
+UTSA|Jeff Traylor|58|27|3|3|Rick Bowie|Jess Loepp
+Boston College|Bill O'Brien|26|28|1|5|Bill O'Brien|Ted Roof
+California|Tosh Lupoi|3|3|3|3|Jordan Somerville|Da'Von Brown
+Clemson|Dabo Swinney|189|55|3|2|Chad Morris|Tom Allen
+Duke|Manny Diaz|43|25|3|3|Jonathan Brewer|Jonathan Patke
+Florida State|Mike Norvell|79|52|2|4|Tim Harris Jr.|Tony White
+Georgia Tech|Brent Key|29|23|4|2|George Godsey|Jason Semore
+Louisville|Jeff Brohm|97|59|2|3|Brian Brohm|Steve Ellis
+Miami (FL)|Mario Cristobal|102|79|5|0|Shannon Dawson|Corey Hetherman
+North Carolina|Bill Belichick|7|10|2|4|Bobby Petrino|Stephen Belichick
+NC State|Dave Doeren|121|77|3|3|Kurt Roper|D. J. Eliot
+Pittsburgh|Pat Narduzzi|85|62|3|3|Kade Bell|Cory Sanders
+SMU|Rhett Lashlee|42|18|4|2|Garin Justice|Maurice Crum Jr.
+Stanford|Tavita Pritchard|2|4|2|4|Terry Heffernan|Kris Richard
+Syracuse|Fran Brown|15|15|2|4|Mike Johnson|Vince Kehres
+Virginia|Tony Elliott|26|28|4|2|Desmond Kitchings|John Rudzinski
+Virginia Tech|James Franklin|132|62|4|2|Ty Howle|Brent Pry
+Wake Forest|Jake Dickert|37|25|4|2|Rob Ezell|Scottie Hazelton
+Arizona|Brent Brennan|52|61|3|3|Seth Doege|Danny Gonzales
+Arizona State|Kenny Dillingham|25|18|4|2|Marcus Arroyo|Brian Ward
+Baylor|Dave Aranda|40|38|2|4|Jake Spavital|Joe Klanderman
+BYU|Kalani Sitake|89|45|5|0|Aaron Roderick|Kelly Poppinga
+Cincinnati|Scott Satterfield|91|63|3|3|Nic Cardwell|Nate Woody
+Colorado|Deion Sanders|18|24|2|4|Brennan Marion|Chris Marve
+Houston|Willie Fritz|90|66|4|2|Slade Nagle|Austin Armstrong
+Iowa State|Jimmy Rogers|9|9|3|3|Tyler Roehl|Jesse Bobbit
+Kansas|Lance Leipold|66|71|3|3|Andy Kotelnicki|D.K. McDonald
+Kansas State|Collin Klein|3|2|3|2|Sean Gleeson|Jordan Peterson
+Oklahoma State|Eric Morris|26|17|4|1|Sean Brophy|Skyler Cassity
+TCU|Sonny Dykes|109|83|4|2|A. J. Ricker|Andy Avalos
+Texas Tech|Joey McGuire|40|18|5|0|Mack Leftwich|Rob Greene
+UCF|Scott Frost|43|48|4|2|Steve Cooper|Alex Grinch
+Utah|Morgan Scalley|6|0|6|0|Kevin McGiven|Colton Swan
+West Virginia|Rich Rodriguez|143|102|3|3|Rich Rodriguez|Zac Alley
+Illinois|Bret Bielema|137|87|4|2|Barry Lunney Jr.|Chris Hurd
+Indiana|Curt Cignetti|52|6|6|0|Mike Shanahan|Bryant Haines
+Iowa|Kirk Ferentz|218|129|4|1|Tim Lester|Phil Parker
+Maryland|Mike Locksley|41|79|2|4|Clint Trickett|Aazaar Abdul-Rahim
+Michigan|Kyle Whittingham|180|90|3|2|Jason Beck|Jay Hill
+Michigan State|Pat Fitzgerald|112|105|2|4|Nick Sheridan|Joe Rossi
+Minnesota|P. J. Fleck|100|68|4|1|Greg Harbaugh Jr.|Danny Collins
+Nebraska|Matt Rhule|71|63|5|1|Dana Holgorsen|Rob Aurich
+Northwestern|David Braun|23|20|4|2|Chip Kelly|Tim McGarigle
+Ohio State|Ryan Day|87|13|5|0|Keenan Bailey|Matt Patricia
+Oregon|Dan Lanning|51|10|5|1|Drew Mehringer|Chris Hampton
+Penn State|Matt Campbell|110|73|3|3|Taylor Mouser|D'Anton Lynn
+Purdue|Barry Odom|49|46|2|4|Josh Henson|Kevin Kane
+Rutgers|Greg Schiano|100|112|3|3|Kirk Ciarrocca|Travis Johansen
+UCLA|Bob Chesney|26|6|5|0|Dean Kennedy|Colin Hitschler
+USC|Lincoln Riley|97|28|6|1|Luke Huard|Gary Patterson
+Washington|Jedd Fisch|35|36|4|2|Jedd Fisch|Ryan Walters
+Wisconsin|Luke Fickell|84|47|2|4|Jeff Grimes|Mike Tressel
+Delaware|Ryan Carty|9|10|3|3|Terence Archer|Manny Rojas
+FIU|Willie Simmons|10|9|3|3|Nick Coleman|Jovan Dewitt
+Jacksonville State|Charles Kelly|14|7|4|2|Taylor Housewright|Brian Williams
+Kennesaw State|Jerry Mack|11|9|3|3|Mitch Militello|Marc Mattioli
+Liberty|Jamey Chadwell|69|36|3|3|Newland Isaac|Skylor Magee
+Middle Tennessee|Derek Mason|36|76|2|4|Anthony Scelfo|Brian Stewart
+Missouri State|Casey Woods|2|4|2|4|Mark Cala|Jack Curtis
+New Mexico State|Tony Sanchez|29|61|2|4|David Yost|Joe Morris
+Sam Houston|Phil Longo|3|15|2|4|Zack Patterson|Freddie Aughtry-Lindsay
+Western Kentucky|Tyson Helton|61|39|4|2|Joe Bernardi|Davis Merritt
+Notre Dame|Marcus Freeman|49|12|6|0|Mike Denbrock|Chris Ash
+UConn|Jason Candle|84|47|3|3|Marquel Blackwell|Ryan Manalac
+Akron|Joe Moorhead|28|52|1|5|Joe Moorhead|Tim Tibesar
+Ball State|Mike Uremovich|5|13|1|5|Mike Uremovich|Jeff Knowles
+Bowling Green|Eddie George|6|12|2|4|Greg Nosal|Joe Bowden
+Buffalo|Pete Lembo|50|43|2|4|Tony Tokarz|Brian Dougherty
+Central Michigan|Matt Drinkall|10|9|3|3|Jim Chapin|Sean Cronin
+Eastern Michigan|Chris Creighton|65|86|2|4|Mike Piatkowski|Tate Omli
+Kent State|Mark Carney|7|11|2|4|Clay Patterson|Cherokee Valeria
+Miami (OH)|Chuck Martin|75|77|4|2|Gus Ragland|Bill Brechin
+Ohio|John Hauser|5|2|5|2|Scott Isophording|Kurt Mattix
+Sacramento State|Alonzo Carter|1|5|1|5|Eric Kiesau|Adam Clark
+Toledo|Mike Jacobs|4|2|4|2|Cris Reisert|Jahmal Brown
+UMass|Joe Harasymiak|4|14|1|5|Max Warner|Jared Keyte
+Western Michigan|Lance Taylor|24|21|3|3|Walt Bell|Greer Martini
+Air Force|Troy Calhoun|143|98|1|5|Mike Thiessen|Steve Russ
+Hawaii|Timmy Chang|23|34|2|4|Anthony Arceneaux|Dennis Thurman
+Nevada|Jeff Choate|8|22|2|4|Bret Bartalone|Kane Ioane
+New Mexico|Jason Eck|13|5|4|2|Luke Schleusner|Spence Nowinsky
+North Dakota State|Tim Polasek|5|1|5|1|Dan Larson|Grant Olson
+Northern Illinois|Rob Harley|0|5|0|5|Tony Petersen|D. J. Bland
+San Jose State|Ken Niumatalolo|122|101|2|4|Craig Stutzmann|Bojay Filimoeatu
+UNLV|Dan Mullen|117|67|4|2|Corey Dennis|Paul Guenther
+UTEP|Scotty Walden|7|27|1|5|Joe Pappalardo|Kyle Beyer
+Wyoming|Jay Sawvel|10|20|2|4|Christian Taylor|Aaron Bohl
+Boise State|Spencer Danielson|29|9|4|2|Nate Potter|Erik Chinander
+Colorado State|Jim Mora|75|57|2|4|Pryce Tracy|Tyson Summers
+Fresno State|Matt Entz|13|6|4|2|Josh Davis|Nick Benedetto
+Oregon State|JaMarcus Shephard|4|2|4|2|Mitch Dahlen|Mike MacIntyre
+San Diego State|Sean Lewis|38|48|4|2|Sean Lewis|Demetrius Sumler
+Texas State|G. J. Kinne|26|19|3|3|Landon Keopple|Will Windham
+Utah State|Bronco Mendenhall|148|99|3|3|Robert Anae|Nick Howell
+Washington State|Kirby Moore|1|5|1|5|Matt Miller|Trent Bray
+Alabama|Kalen DeBoer|62|18|5|1|Ryan Grubb|Kane Wommack
+Arkansas|Ryan Silverfield|52|29|2|4|Tim Cramsey|Ron Roberts
+Auburn|Alex Golesh|26|17|3|2|Kodi Burns|D.J. Durkin
+Florida|Jon Sumrall|47|14|4|2|Buster Faulkner|Brad White
+Georgia|Kirby Smart|123|21|6|0|Mike Bobo|Glenn Schumann
+Kentucky|Will Stein|5|1|5|1|Joe Sloan|Jay Bateman
+LSU|Lane Kiffin|120|54|4|2|Charlie Weis Jr.|Blake Baker
+Mississippi State|Jeff Lebby|11|19|3|3|Jeff Lebby|Zach Arnett
+Missouri|Eli Drinkwitz|63|31|5|1|Chip Lindsey|Corey Batoon
+Oklahoma|Brent Venables|35|22|4|2|Ben Arbuckle|Todd Bates
+Ole Miss|Pete Golding|6|2|4|2|John David Baker|Bryan Brown
+South Carolina|Shane Beamer|36|33|3|3|Kendal Briles|Clayton White
+Tennessee|Josh Heupel|78|29|5|1|Joey Halzle|Jim Knowles
+Texas|Steve Sarkisian|96|56|5|1|Kyle Flood|Will Muschamp
+Texas A&M|Mike Elko|38|19|5|1|Holmon Wiggins|Elijah Robinson
+Vanderbilt|Clark Lea|29|39|4|2|Tim Beck|Steve Gregory
+Appalachian State|Dowell Loggains|8|10|2|4|Mike Anthony|D. J. Smith
+Arkansas State|Butch Jones|112|95|3|3|Garrett Altman|Griffin McCarley
+Coastal Carolina|Ryan Beard|9|9|2|4|Nick Petrino|LD Scott
+Georgia Southern|Clay Helton|76|53|3|3|Ryan Aplin|Mike Mutz
+Georgia State|Dell McGee|8|21|2|4|Hue Jackson|Cam Clark
+James Madison|Billy Napier|68|35|6|0|Cam Aiken|Robert Bala
+Louisiana|Michael Desormeaux|33|27|3|3|Tim Leger|Jim Salgado
+Louisiana-Monroe|Bryant Vincent|15|27|0|5|Jesse Montalto|Troy Reffett
+Louisiana Tech|Sonny Cumbie|24|36|3|3|Nathan Young|Luke Olson
+Marshall|Tony Gibson|8|10|3|3|Rod Smith|Brad Lambert
+Old Dominion|Ricky Rahne|32|37|4|2|Kody Cook|Blake Seiler
+South Alabama|Major Applewhite|30|27|3|3|Major Applewhite|Todd Orlando
+Southern Miss|Blake Anderson|75|59|1|5|Kyle Cefalo|Joe Bolden
+Troy|Gerad Parker|15|22|3|3|Adam Austin|Dontae Wright`
+.trim()
+.split("\n")
+.map(x=>{
+  let [school,name,w,l,w26,l26,oc,dc]=x.split("|");
+  return {
+    school,
+    name,
+    w:Math.max(0,+w-(+w26)),
+    l:Math.max(0,+l-(+l26)),
+    oc,
+    dc
+  };
+});
+
+
+const legends=[
+  ['Nick Saban',297,71,7],
+  ['Bear Bryant',323,85,6],
+  ['Bobby Bowden',357,124,2],
+  ['Tom Osborne',255,49,3]
+];
+
+const first='James Marcus Tyler Devin Jordan Cameron Malik Jayden Austin Trey Brandon Isaiah Darius Caleb Ethan Cole Dylan Jalen Mason Trevor Andre Bryce Keon Micah'.split(' ');
+const last='Johnson Williams Davis Miller Brown Wilson Jackson Thomas Walker Moore Taylor Robinson Harris Young Anderson Smith Carter Mitchell Brooks Reed Parker Jones Lewis'.split(' ');
+const positions='QB HB WR WR WR TE OT OT OG OG C DE DE DT DT OLB MLB CB CB FS SS K P'.split(' ');
+const states='AR TX LA MS AL GA FL TN OK CA OH NC SC MI PA'.split(' ');
+
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const one=a=>a[rnd(0,a.length-1)];
+const id=()=>Math.random().toString(36).slice(2,10);
+const nm=()=>one(first)+' '+one(last);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({
+  '&':'&amp;',
+  '<':'&lt;',
+  '>':'&gt;',
+  '"':'&quot;',
+  "'":'&#39;'
+}[c]));
+
+let S;
+let tab='Office';
+let filter='';
+let board='All';
+
+function player(pos,yr,base){
+  let ovr=Math.max(40,Math.min(98,base+rnd(-11,11)));
+  return {
+    id:id(),
+    name:nm(),
+    pos,
+    yr,
+    ovr,
+    pot:Math.min(99,ovr+rnd(3,23)),
+    dev:one(['Normal','Normal','Impact','Star','Elite']),
+    redshirt:false,
+    used:false,
+    stats:{games:0,yards:0,td:0},
+    origin:null
+  };
+}
+
+function coach(name,role,teamId,realName=false){
+  return {
+    id:id(),
+    name,
+    role,
+    teamId,
+    realName,
+    age:rnd(35,65),
+    skill:rnd(48,90),
+    recruit:rnd(45,90),
+    develop:rnd(45,90),
+    scheme:one(['Spread','Pro Style','Air Raid','Power Run','Multiple']),
+    pipeline:one(states),
+    xp:0,
+    level:1,
+    points:2,
+    skills:{
+      Recruiter:0,
+      Developer:0,
+      Tactician:0,
+      CEO:0
+    },
+    career:{
+      wins:0,
+      losses:0,
+      conferenceWins:0,
+      conferenceTitles:0,
+      bowlWins:0,
+      playoffWins:0,
+      titles:0,
+      top5:0,
+      no1:0,
+      fiveStars:0
+    },
+    history:[],
+    contract:rnd(2,5),
+    assigned:[],
+    retired:false
+  };
+}
+
+function create(){
+  let coaches=[];
+  let teams=[];
+
+  for(let [conf,list] of Object.entries(groups)){
+    for(let name of list.split(',')){
+      let i=teams.length;
+
+      let prestige=[
+        'Alabama','Georgia','Ohio State','Texas',
+        'Notre Dame','Michigan','Oregon'
+      ].includes(name)?5:
+      ['SEC','Big Ten','Big 12','ACC'].includes(conf)?4:
+      conf==='Independent'?3:2;
+
+      let hc=coach(real[name]||nm(),'HC',i,!!real[name]);
+      let oc=coach(nm(),'OC',i);
+      let dc=coach(nm(),'DC',i);
+
+      coaches.push(hc,oc,dc);
+
+      teams.push({
+        id:i,
+        name,
+        conf,
+        prestige,
+        coach:hc.id,
+        oc:oc.id,
+        dc:dc.id,
+        roster:Array.from(
+          {length:85},
+          (_,j)=>player(
+            positions[j%positions.length],
+            rnd(1,4),
+            51+prestige*5
+          )
+        ),
+        wins:0,
+        losses:0,
+        cwins:0,
+        closses:0,
+        history:[],
+        rank:0,
+        nil:prestige*300,
+        offers:[],
+        classHistory:[]
+      });
+    }
+  }
+
+  let user=coach(
+    'Your Coach',
+    'HC',
+    teams.find(t=>t.name==='Arkansas State').id
+  );
+
+  coaches.push(user);
+  teams[user.teamId].coach=user.id;
+
+  let s={
+    version:5,
+    year:2026,
+    week:1,
+    teams,
+    coaches,
+    user:user.id,
+    recruits:[],
+    games:[],
+    news:[
+      'Welcome to Saturday Dynasty. All high school prospects are graduating seniors.'
+    ],
+    results:[],
+    champions:[],
+    hours:600,
+    settings:{
+      nil:'balanced',
+      recruiting:'assisted'
+    },
+    jobs:[],
+    playoff:[],
+    seasonHistory:[]
+  };
+
+  makeRecruits(s);
+  schedule(s);
+  return s;
+}
+
+function makeRecruits(s){
+  s.recruits=Array.from({length:650},(_,i)=>{
+    let stars=i<25?5:i<155?4:i<450?3:2;
+    let p=player(one(positions),0,stars*11+25);
+
+    return {
+      ...p,
+      stars,
+      rank:i+1,
+      home:one(states),
+      target:false,
+      offer:false,
+      committed:null,
+      scout:0,
+      interest:{},
+      hours:{},
+      assigned:null,
+      visit:false,
+      nil:rnd(0,stars*65),
+      priority:2,
+      promises:[],
+      signed:false
+    };
+  });
+}
+
+function schedule(s){
+  s.games=[];
+
+  for(let w=1;w<=12;w++){
+    let paired=new Set();
+
+    for(let t of s.teams){
+      if(paired.has(t.id))continue;
+
+      let candidates=s.teams.filter(
+        x=>x.id!==t.id&&!paired.has(x.id)
+      );
+
+      let same=candidates.filter(
+        x=>x.conf===t.conf
+      );
+
+      let opponent=one(
+        same.length&&w<=8?same:candidates
+      );
+
+      if(!opponent)continue;
+
+      paired.add(t.id);
+      paired.add(opponent.id);
+
+      s.games.push({
+        week:w,
+        a:t.id,
+        b:opponent.id,
+        played:false,
+        conference:t.conf===opponent.conf
+      });
+    }
+  }
+}
+
+function user(){
+  return S.coaches.find(c=>c.id===S.user);
+}
+
+function team(){
+  return S.teams[user().teamId];
+}
+
+function c(id){
+  return S.coaches.find(x=>x.id===id);
+}
+
+function scoreCoach(x){
+  let a=x.career;
+
+  return (
+    a.wins*10+
+    a.conferenceWins*5+
+    a.conferenceTitles*150+
+    a.bowlWins*50+
+    a.playoffWins*100+
+    a.titles*500+
+    a.top5*75+
+    a.no1*150+
+    a.fiveStars*20
+  );
+}
+
+function strength(t){
+  let r=[...t.roster]
+    .sort((a,b)=>b.ovr-a.ovr)
+    .slice(0,45);
+
+  let co=c(t.coach);
+
+  return (
+    r.reduce((a,p)=>a+p.ovr,0)/r.length+
+    t.prestige*1.5+
+    (co?.skill||65)/10+
+    (c(t.oc)?.skill||60)/20+
+    (c(t.dc)?.skill||60)/20+
+    (co?.skills.Tactician||0)*1.5
+  );
+}
+
+function influence(r,t){
+  return r.interest[t.id]??(
+    r.interest[t.id]=
+      rnd(0,20)+
+      t.prestige*5+
+      (r.home==='AR'&&t.name.includes('Arkansas')?15:0)
+  );
+}
+
+function addNews(s){
+  S.news.unshift(s);
+  S.news=S.news.slice(0,65);
+}
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(S));
+  render();
+}
+
+function exportSave(){
+  let a=document.createElement('a');
+
+  a.href=URL.createObjectURL(
+    new Blob(
+      [JSON.stringify(S)],
+      {type:'application/json'}
+    )
+  );
+
+  a.download=`saturday-dynasty-${S.year}.json`;
+  a.click();
+
+  setTimeout(
+    ()=>URL.revokeObjectURL(a.href),
+    2000
+  );
+}
+
+function importSave(el){
+  let f=el.files[0];
+  if(!f)return;
+
+  f.text().then(x=>{
+    try{
+      let z=JSON.parse(x);
+
+      if(z.version!==5&&z.version!==4){
+        throw Error('Only v4/v5 saves supported');
+      }
+
+      S=migrate(z);
+      save();
+    }catch(e){
+      alert(e.message);
+    }
+  });
+}
+
+function recruitAction(id,action){
+  let r=S.recruits.find(x=>x.id===id);
+
+  let cost={
+    Scout:10,
+    Contact:10,
+    Pitch:25,
+    Visit:40,
+    Promise:15
+  }[action];
+
+  if(!r||S.hours<cost){
+    return alert('Not enough recruiting hours');
+  }
+
+  S.hours-=cost;
+
+  if(action==='Scout'){
+    r.scout=Math.min(100,r.scout+35);
+  }else if(action==='Visit'){
+    r.visit=true;
+  }else if(action==='Promise'){
+    if(!r.promises.includes('Playing time')){
+      r.promises.push('Playing time');
+    }
+  }else{
+    r.interest[team().id]=
+      influence(r,team())+
+      (action==='Pitch'?rnd(9,18):rnd(4,9))+
+      user().skills.Recruiter*2;
+  }
+
+  r.target=true;
+  save();
+  showRecruit(id);
+}
+
+function offer(id){
+  let r=S.recruits.find(x=>x.id===id);
+
+  if(!r||r.committed!==null)return;
+
+  r.offer=!r.offer;
+  r.target=true;
+
+  save();
+  showRecruit(id);
+}
+
+function target(id){
+  let r=S.recruits.find(x=>x.id===id);
+
+  r.target=!r.target;
+
+  save();
+  showRecruit(id);
+}
+
+function assign(id,role){
+  let r=S.recruits.find(x=>x.id===id);
+
+  r.assigned=role||null;
+
+  save();
+  showRecruit(id);
+}
+
+function showRecruit(id){
+  let r=S.recruits.find(x=>x.id===id);
+  let d=document.getElementById('modal');
+
+  d.innerHTML=`
+    <div class="row">
+      <h2>${esc(r.name)} · ${r.pos}</h2>
+      <button onclick="document.getElementById('modal').close()">
+        Close
+      </button>
+    </div>
+
+    <p class="gold">
+      ${'★'.repeat(r.stars)}
+      · National #${r.rank}
+      · ${r.home}
+      · Graduating Senior
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        Scouting ${r.scout}%
+        <br>
+        OVR ${r.scout>=35?r.ovr:'??'}
+        · Potential ${r.scout>=70?r.pot:'??'}
+        <br>
+        Development ${r.scout>=100?r.dev:'Unknown'}
+      </div>
+
+      <div class="card">
+        Your interest ${Math.round(influence(r,team()))}
+        <br>
+        Scholarship ${r.offer?'Offered':'Not offered'}
+        <br>
+        Status ${
+          r.committed===null
+          ?'Uncommitted'
+          :S.teams[r.committed].name
+        }
+      </div>
+    </div>
+
+    <p>
+      Projected NIL request: $${r.nil}k
+      · Playing-time promise:
+      ${r.promises.length?'Yes':'No'}
+    </p>
+
+    <div class="row">
+      <button onclick="target('${id}')">
+        ${r.target?'Remove target':'Add target'}
+      </button>
+
+      <button onclick="offer('${id}')">
+        ${r.offer?'Withdraw offer':'Offer scholarship'}
+      </button>
+
+      ${['Scout','Contact','Pitch','Visit','Promise']
+        .map(x=>`
+          <button onclick="recruitAction('${id}','${x}')">
+            ${x}
+          </button>
+        `).join('')}
+    </div>
+
+    <p>
+      Assistant assignment:
+      <select onchange="assign('${id}',this.value)">
+        <option value="">None</option>
+        <option ${r.assigned==='oc'?'selected':''} value="oc">
+          OC
+        </option>
+        <option ${r.assigned==='dc'?'selected':''} value="dc">
+          DC
+        </option>
+      </select>
+    </p>
+
+    <h3>Recruiting competition</h3>
+
+    ${S.teams
+      .map(t=>({t,v:influence(r,t)}))
+      .sort((a,b)=>b.v-a.v)
+      .slice(0,5)
+      .map(x=>`
+        <p>
+          ${esc(x.t.name)}
+          — ${Math.round(x.v)} influence
+        </p>
+      `).join('')}
+  `;
+
+  d.showModal();
+}
+
+/* SATURDAY DYNASTY — PART 4
+   GAME ENGINE, RECRUITING, POSTSEASON AND COACHING
+*/
+
+function teamRating(t){
+  return strength(t);
+}
+
+function playGame(g,postseason=false){
+  if(g.played)return g;
+
+  let a=S.teams[g.a];
+  let b=S.teams[g.b];
+
+  if(!a||!b)return g;
+
+  let ra=teamRating(a);
+  let rb=teamRating(b);
+
+  let home=2.5;
+  let swing=rnd(-18,18);
+  let difference=ra-rb+home+swing;
+
+  let baseA=rnd(17,34);
+  let baseB=rnd(17,34);
+
+  let pointsA=Math.max(
+    3,
+    baseA+Math.round(difference*.65)
+  );
+
+  let pointsB=Math.max(
+    3,
+    baseB-Math.round(difference*.65)
+  );
+
+  if(pointsA===pointsB){
+    if(Math.random()<.5)pointsA+=3;
+    else pointsB+=3;
+  }
+
+  g.sa=pointsA;
+  g.sb=pointsB;
+  g.played=true;
+  g.winner=pointsA>pointsB?a.id:b.id;
+  g.loser=pointsA>pointsB?b.id:a.id;
+
+  if(!postseason){
+    a.wins+=pointsA>pointsB?1:0;
+    a.losses+=pointsA<pointsB?1:0;
+
+    b.wins+=pointsB>pointsA?1:0;
+    b.losses+=pointsB<pointsA?1:0;
+
+    if(g.conference){
+      a.cwins+=pointsA>pointsB?1:0;
+      a.closses+=pointsA<pointsB?1:0;
+
+      b.cwins+=pointsB>pointsA?1:0;
+      b.closses+=pointsB<pointsA?1:0;
+    }
+
+    let ca=c(a.coach);
+    let cb=c(b.coach);
+
+    if(ca){
+      ca.career.wins+=pointsA>pointsB?1:0;
+      ca.career.losses+=pointsA<pointsB?1:0;
+      if(g.conference&&pointsA>pointsB){
+        ca.career.conferenceWins++;
+      }
+    }
+
+    if(cb){
+      cb.career.wins+=pointsB>pointsA?1:0;
+      cb.career.losses+=pointsB<pointsA?1:0;
+      if(g.conference&&pointsB>pointsA){
+        cb.career.conferenceWins++;
+      }
+    }
+  }
+
+  return g;
+}
+
+function gameText(g){
+  let a=S.teams[g.a];
+  let b=S.teams[g.b];
+
+  return `${a.name} ${g.sa} — ${b.name} ${g.sb}`;
+}
+
+function weeklyRecruiting(){
+  for(let r of S.recruits){
+    if(r.committed!==null)continue;
+
+    let contenders=S.teams
+      .map(t=>({
+        t,
+        value:influence(r,t)
+      }))
+      .sort((a,b)=>b.value-a.value);
+
+    for(let x of contenders.slice(0,7)){
+      let boost=rnd(1,8);
+
+      if(x.t.id===team().id){
+        if(r.target)boost+=3;
+
+        if(r.assigned==='oc'){
+          boost+=Math.round(
+            (c(team().oc)?.recruit||60)/22
+          );
+        }
+
+        if(r.assigned==='dc'){
+          boost+=Math.round(
+            (c(team().dc)?.recruit||60)/22
+          );
+        }
+
+        if(r.offer)boost+=2;
+        if(r.visit)boost+=5;
+      }
+
+      r.interest[x.t.id]=
+        influence(r,x.t)+boost;
+    }
+
+    let ranked=S.teams
+      .map(t=>({
+        t,
+        value:influence(r,t)
+      }))
+      .sort((a,b)=>b.value-a.value);
+
+    let leader=ranked[0];
+    let second=ranked[1];
+
+    let threshold=
+      r.stars===5?125:
+      r.stars===4?110:
+      r.stars===3?95:80;
+
+    let advantage=
+      leader.value-(second?.value||0);
+
+    let chance=
+      S.week>=8?.19:
+      S.week>=5?.12:.05;
+
+    if(
+      leader.value>=threshold&&
+      advantage>=10&&
+      Math.random()<chance
+    ){
+      if(
+        leader.t.id===team().id&&!r.offer
+      ){
+        continue;
+      }
+
+      r.committed=leader.t.id;
+
+      if(leader.t.id===team().id){
+        addNews(
+          `COMMITMENT: ${r.stars}-star ${r.pos} `+
+          `${r.name} committed to ${team().name}!`
+        );
+
+        if(r.stars===5){
+          user().career.fiveStars++;
+        }
+
+        if(r.stars>=4){
+          spotlight(
+            'RECRUITING VICTORY',
+            `${r.name}`,
+            `${'★'.repeat(r.stars)} ${r.pos} · `+
+            `National #${r.rank}`
+          );
+        }
+      }
+    }
+  }
+}
+
+function assistantRecruiting(){
+  let assigned=S.recruits.filter(
+    r=>r.committed===null&&
+       r.target&&r.assigned
+  );
+
+  for(let r of assigned){
+    let staff=r.assigned==='oc'
+      ?c(team().oc)
+      :c(team().dc);
+
+    if(!staff)continue;
+
+    let gain=rnd(3,7)+
+      Math.round(staff.recruit/20);
+
+    r.interest[team().id]=
+      influence(r,team())+gain;
+  }
+}
+
+function rankings(){
+  return [...S.teams].sort((a,b)=>{
+    let pa=
+      a.wins*10-
+      a.losses*4+
+      teamRating(a)*.4;
+
+    let pb=
+      b.wins*10-
+      b.losses*4+
+      teamRating(b)*.4;
+
+    return pb-pa;
+  });
+}
+
+function updateRankings(){
+  rankings().forEach((t,i)=>{
+    t.rank=i+1;
+  });
+}
+
+function weeklyDevelopment(){
+  for(let t of S.teams){
+    let staff=c(t.coach);
+    let bonus=staff?.skills.Developer||0;
+
+    for(let p of t.roster){
+      if(Math.random()<.09+bonus*.01){
+        if(p.ovr<p.pot){
+          p.ovr+=1;
+        }
+      }
+    }
+  }
+}
+
+function advanceWeek(){
+  if(S.week>12){
+    return alert(
+      'The regular season is complete. '+
+      'Advance to the postseason.'
+    );
+  }
+
+  let games=S.games.filter(
+    g=>g.week===S.week
+  );
+
+  for(let g of games){
+    playGame(g);
+  }
+
+  assistantRecruiting();
+  weeklyRecruiting();
+  weeklyDevelopment();
+  updateRankings();
+
+  let mine=games.find(
+    g=>g.a===team().id||g.b===team().id
+  );
+
+  if(mine){
+    let won=mine.winner===team().id;
+
+    addNews(
+      `WEEK ${S.week}: ${gameText(mine)} `+
+      `— ${won?'WIN':'LOSS'}`
+    );
+  }
+
+  S.results.push({
+    year:S.year,
+    week:S.week,
+    games:games.map(g=>({
+      a:g.a,
+      b:g.b,
+      sa:g.sa,
+      sb:g.sb,
+      winner:g.winner
+    }))
+  });
+
+  S.week++;
+  S.hours=600;
+
+  if(S.week===13){
+    addNews(
+      `${S.year} regular season complete. `+
+      'Conference championships are next.'
+    );
+  }
+
+  save();
+}
+
+function conferenceStandings(conf){
+  return S.teams
+    .filter(t=>t.conf===conf)
+    .sort((a,b)=>
+      b.cwins-a.cwins||
+      b.wins-a.wins||
+      teamRating(b)-teamRating(a)
+    );
+}
+
+function postseasonGame(a,b,type){
+  let g={
+    id:id(),
+    week:13,
+    a:a.id,
+    b:b.id,
+    type,
+    played:false,
+    conference:false
+  };
+
+  playGame(g,true);
+
+  let winner=S.teams[g.winner];
+  let loser=S.teams[g.loser];
+
+  let wc=c(winner.coach);
+  let lc=c(loser.coach);
+
+  if(wc){
+    wc.career.wins++;
+  }
+
+  if(lc){
+    lc.career.losses++;
+  }
+
+  if(type==='Bowl'){
+    if(wc)wc.career.bowlWins++;
+  }
+
+  if(type==='CFP'){
+    if(wc)wc.career.playoffWins++;
+  }
+
+  if(type==='Conference Championship'){
+    if(wc)wc.career.conferenceTitles++;
+  }
+
+  S.results.push({
+    year:S.year,
+    type,
+    game:g
+  });
+
+  return g;
+}
+
+function conferenceChampionships(){
+  let champs=[];
+  let games=[];
+
+  for(let conf of Object.keys(groups)){
+    let standings=conferenceStandings(conf);
+
+    if(standings.length<2)continue;
+
+    let g=postseasonGame(
+      standings[0],
+      standings[1],
+      'Conference Championship'
+    );
+
+    games.push(g);
+    champs.push(S.teams[g.winner]);
+
+    if(
+      g.a===team().id||
+      g.b===team().id
+    ){
+      if(g.winner===team().id){
+        spotlight(
+          'CONFERENCE CHAMPIONS',
+          team().name,
+          `${conf} Champions · ${S.year}`
+        );
+      }
+    }
+  }
+
+  return {champs,games};
+}
+
+function playoffField(){
+  let ranked=rankings();
+  let champions=S._conferenceChampions||[];
+
+  let chosen=[];
+
+  let bestChampions=[...champions]
+    .sort((a,b)=>
+      ranked.indexOf(a)-ranked.indexOf(b)
+    )
+    .slice(0,5);
+
+  for(let t of bestChampions){
+    if(!chosen.includes(t)){
+      chosen.push(t);
+    }
+  }
+
+  for(let t of ranked){
+    if(chosen.length>=12)break;
+
+    if(!chosen.includes(t)){
+      chosen.push(t);
+    }
+  }
+
+  return chosen.sort((a,b)=>
+    ranked.indexOf(a)-ranked.indexOf(b)
+  );
+}
+
+function runPlayoff(){
+  let seeds=playoffField();
+
+  if(seeds.length!==12){
+    throw Error('Playoff field must have 12 teams.');
+  }
+
+  let games=[];
+  let winners=[];
+
+  let firstRound=[
+    [seeds[4],seeds[11]],
+    [seeds[5],seeds[10]],
+    [seeds[6],seeds[9]],
+    [seeds[7],seeds[8]]
+  ];
+
+  for(let [a,b] of firstRound){
+    let g=postseasonGame(a,b,'CFP');
+
+    games.push(g);
+    winners.push(S.teams[g.winner]);
+  }
+
+  let quarters=[
+    [seeds[0],winners[3]],
+    [seeds[1],winners[2]],
+    [seeds[2],winners[1]],
+    [seeds[3],winners[0]]
+  ];
+
+  let semifinalists=[];
+
+  for(let [a,b] of quarters){
+    let g=postseasonGame(a,b,'CFP');
+
+    games.push(g);
+    semifinalists.push(S.teams[g.winner]);
+  }
+
+  let semi1=postseasonGame(
+    semifinalists[0],
+    semifinalists[3],
+    'CFP'
+  );
+
+  let semi2=postseasonGame(
+    semifinalists[1],
+    semifinalists[2],
+    'CFP'
+  );
+
+  games.push(semi1,semi2);
+
+  let final=postseasonGame(
+    S.teams[semi1.winner],
+    S.teams[semi2.winner],
+    'CFP'
+  );
+
+  games.push(final);
+
+  let champion=S.teams[final.winner];
+  let coachOfChampion=c(champion.coach);
+
+  if(coachOfChampion){
+    coachOfChampion.career.titles++;
+  }
+
+  S.champions.push({
+    year:S.year,
+    team:champion.id,
+    coach:champion.coach,
+    score:gameText(final)
+  });
+
+  if(champion.id===team().id){
+    spotlight(
+      'NATIONAL CHAMPIONS',
+      team().name,
+      `${S.year} College Football Playoff Champions`
+    );
+  }
+
+  return {seeds,games,champion};
+}
+
+function runBowls(playoffTeams){
+  let excluded=new Set(
+    playoffTeams.map(t=>t.id)
+  );
+
+  let eligible=rankings()
+    .filter(t=>
+      t.wins>=6&&!excluded.has(t.id)
+    );
+
+  let games=[];
+
+  for(let i=0;i+1<eligible.length;i+=2){
+    let g=postseasonGame(
+      eligible[i],
+      eligible[i+1],
+      'Bowl'
+    );
+
+    games.push(g);
+
+    if(
+      g.winner===team().id
+    ){
+      spotlight(
+        'BOWL CHAMPIONS',
+        team().name,
+        gameText(g)
+      );
+    }
+  }
+
+  return games;
+}
+
+function recruitingClassRankings(){
+  let ranked=S.teams.map(t=>{
+    let commits=S.recruits.filter(
+      r=>r.committed===t.id
+    );
+
+    let points=commits.reduce(
+      (sum,r)=>
+        sum+r.stars*20+
+        Math.round(r.ovr*.35),
+      0
+    );
+
+    return {
+      team:t,
+      commits,
+      points
+    };
+  });
+
+  return ranked.sort(
+    (a,b)=>b.points-a.points
+  );
+}
+
+function signRecruits(){
+  let classes=recruitingClassRankings();
+
+  classes.forEach((x,i)=>{
+    let t=x.team;
+
+    t.classHistory.push({
+      year:S.year,
+      rank:i+1,
+      points:x.points,
+      commits:x.commits.length,
+      fiveStars:x.commits.filter(
+        r=>r.stars===5
+      ).length
+    });
+
+    let hc=c(t.coach);
+
+    if(hc){
+      if(i===0)hc.career.no1++;
+      if(i<5)hc.career.top5++;
+    }
+
+    for(let r of x.commits){
+      t.roster.push({
+        ...player(r.pos,1,r.ovr),
+        name:r.name,
+        ovr:r.ovr,
+        pot:r.pot,
+        dev:r.dev,
+        origin:{
+          year:S.year,
+          rank:r.rank,
+          stars:r.stars
+        }
+      });
+
+      r.signed=true;
+    }
+  });
+
+  return classes;
+}
+
+function graduatePlayers(){
+  for(let t of S.teams){
+    t.roster=t.roster.filter(p=>{
+      if(p.yr>=4){
+        return false;
+      }
+
+      p.yr++;
+      p.used=false;
+
+      let growth=
+        p.dev==='Elite'?rnd(3,7):
+        p.dev==='Star'?rnd(2,5):
+        p.dev==='Impact'?rnd(1,4):
+        rnd(0,3);
+
+      let staff=c(t.coach);
+
+      growth+=staff?.skills.Developer||0;
+
+      p.ovr=Math.min(
+        p.pot,
+        p.ovr+growth
+      );
+
+      return true;
+    });
+
+    while(t.roster.length<70){
+      t.roster.push(
+        player(
+          one(positions),
+          rnd(1,3),
+          49+t.prestige*5
+        )
+      );
+    }
+
+    t.roster=t.roster
+      .sort((a,b)=>b.ovr-a.ovr)
+      .slice(0,95);
+  }
+}
+
+function coachSeasonHistory(){
+  for(let t of S.teams){
+    let hc=c(t.coach);
+
+    if(!hc)continue;
+
+    hc.history.push({
+      year:S.year,
+      school:t.name,
+      wins:t.wins,
+      losses:t.losses,
+      conferenceWins:t.cwins,
+      conferenceLosses:t.closses
+    });
+
+    hc.xp+=
+      t.wins*12+
+      t.cwins*5;
+
+    while(hc.xp>=hc.level*100){
+      hc.xp-=hc.level*100;
+      hc.level++;
+      hc.points++;
+    }
+
+    hc.age++;
+    hc.contract=Math.max(
+      0,hc.contract-1
+    );
+
+    if(hc.history.length>=35){
+      hc.retired=true;
+    }
+  }
+}
+
+function availableCoaches(){
+  return S.coaches.filter(
+    x=>!x.retired&&x.role==='HC'
+  );
+}
+
+function hireReplacement(t){
+  let candidate=coach(
+    nm(),
+    'HC',
+    t.id
+  );
+
+  candidate.age=rnd(34,49);
+  candidate.skill=rnd(52,77);
+
+  S.coaches.push(candidate);
+  t.coach=candidate.id;
+
+  return candidate;
+}
+
+function coachingCarousel(){
+  let changes=[];
+
+  for(let t of S.teams){
+    let hc=c(t.coach);
+
+    if(!hc)continue;
+
+    if(hc.id===S.user)continue;
+
+    let shouldReplace=
+      hc.retired||
+      (t.wins<=3&&Math.random()<.12);
+
+    if(shouldReplace){
+      let oldName=hc.name;
+
+      hc.retired=true;
+
+      let replacement=hireReplacement(t);
+
+      changes.push({
+        school:t.name,
+        old:oldName,
+        next:replacement.name
+      });
+    }
+  }
+
+  S.jobs=changes;
+
+  if(changes.length){
+    addNews(
+      `COACHING CAROUSEL: ${changes.length} `+
+      'programs have changed head coaches.'
+    );
+  }
+
+  return changes;
+}
+
+function finishSeason(){
+  if(S.week<=12){
+    return alert(
+      'Finish all 12 regular-season weeks first.'
+    );
+  }
+
+  if(S.week===14){
+    return alert(
+      'This season has already been completed.'
+    );
+  }
+
+  updateRankings();
+
+  let conference=conferenceChampionships();
+
+  S._conferenceChampions=conference.champs.map(
+    t=>t
+  );
+
+  let playoff=runPlayoff();
+  let bowls=runBowls(playoff.seeds);
+
+  let classes=signRecruits();
+
+  let mine=team();
+
+  S.seasonHistory.push({
+    year:S.year,
+    userSchool:mine.name,
+    wins:mine.wins,
+    losses:mine.losses,
+    champion:playoff.champion.name,
+    recruitingRank:
+      classes.findIndex(
+        x=>x.team.id===mine.id
+      )+1,
+    playoffTeams:playoff.seeds.map(
+      t=>t.name
+    )
+  });
+
+  coachSeasonHistory();
+  coachingCarousel();
+
+  S.playoff=playoff.games;
+
+  S.week=14;
+
+  addNews(
+    `${S.year} NATIONAL CHAMPION: `+
+    playoff.champion.name
+  );
+
+  save();
+}
+
+function startNextSeason(){
+  if(S.week!==14){
+    return alert(
+      'Complete the current postseason first.'
+    );
+  }
+
+  if(user().retired){
+    return alert(
+      'Your coaching career has reached its end.'
+    );
+  }
+
+  if(user().history.length>=35){
+    user().retired=true;
+
+    save();
+
+    spotlight(
+      'LEGENDARY CAREER',
+      user().name,
+      '35 seasons completed. Your dynasty is retired.'
+    );
+
+    return;
+  }
+
+  graduatePlayers();
+
+  S.year++;
+  S.week=1;
+  S.hours=600;
+  S.playoff=[];
+  S._conferenceChampions=[];
+
+  for(let t of S.teams){
+    t.wins=0;
+    t.losses=0;
+    t.cwins=0;
+    t.closses=0;
+    t.rank=0;
+  }
+
+  makeRecruits(S);
+  schedule(S);
+  updateRankings();
+
+  addNews(
+    `WELCOME TO THE ${S.year} SEASON!`
+  );
+
+  save();
+}
+
+function trainCoach(skill){
+  let hc=user();
+
+  if(hc.points<=0){
+    return alert(
+      'No available coaching skill points.'
+    );
+  }
+
+  if(!(skill in hc.skills)){
+    return;
+  }
+
+  if(hc.skills[skill]>=5){
+    return alert(
+      'This coaching skill is already maxed out.'
+    );
+  }
+
+  hc.skills[skill]++;
+  hc.points--;
+
+  save();
+}
+
+function changeProgram(id){
+  let hc=user();
+  let old=team();
+  let next=S.teams.find(
+    t=>t.id===Number(id)
+  );
+
+  if(!next||next.id===old.id)return;
+
+  let previous=c(next.coach);
+
+  if(previous){
+    previous.retired=true;
+  }
+
+  hireReplacement(old);
+
+  hc.teamId=next.id;
+  next.coach=hc.id;
+
+  addNews(
+    `${hc.name} accepted the head coaching `+
+    `position at ${next.name}.`
+  );
+
+  save();
+}
+
+function retireDynasty(){
+  if(!confirm(
+    'Retire your coach and end this dynasty?'
+  )){
+    return;
+  }
+
+  user().retired=true;
+
+  save();
+
+  spotlight(
+    'CAREER COMPLETE',
+    user().name,
+    `${user().career.wins} wins · `+
+    `${user().career.titles} national titles`
+  );
+}
+
+/* SATURDAY DYNASTY — PART 5 OF 5
+   AMENDED INTERFACE, HALL OF FAME, ARCADE,
+   SAVE COMPATIBILITY AND STARTUP
+*/
+
+/* Fixes the dialog mismatch from Part 1.
+   The existing "dlg" remains available for celebrations.
+   Recruiting receives its own "modal" dialog. */
+(function fixDialogs(){
+  if(!document.getElementById('modal')){
+    const modal=document.createElement('dialog');
+    modal.id='modal';
+    document.body.appendChild(modal);
+  }
+})();
+
+const NAV_ITEMS=[
+  'Office',
+  'Schedule',
+  'Standings',
+  'Recruiting',
+  'Roster',
+  'Coaching',
+  'Hall of Fame',
+  'Arcade',
+  'History'
+];
+
+const HISTORICAL_LEGENDS=[
+  {
+    name:'Nick Saban',
+    wins:297,
+    losses:71,
+    titles:7,
+    school:'Toledo, Michigan State, LSU, Alabama'
+  },
+  {
+    name:'Paul "Bear" Bryant',
+    wins:323,
+    losses:85,
+    titles:6,
+    school:'Maryland, Kentucky, Texas A&M, Alabama'
+  },
+  {
+    name:'Bobby Bowden',
+    wins:357,
+    losses:124,
+    titles:2,
+    school:'Samford, West Virginia, Florida State'
+  },
+  {
+    name:'Tom Osborne',
+    wins:255,
+    losses:49,
+    titles:3,
+    school:'Nebraska'
+  }
+];
+
+/* The historical entries are displayed separately
+   from simulated career statistics. */
+
+function migrate(z){
+  if(!z||!Array.isArray(z.teams)||
+     !Array.isArray(z.coaches)){
+    throw Error('Invalid Saturday Dynasty save file.');
+  }
+
+  z.version=5;
+  z.news=Array.isArray(z.news)?z.news:[];
+  z.results=Array.isArray(z.results)?z.results:[];
+  z.champions=Array.isArray(z.champions)?z.champions:[];
+  z.seasonHistory=Array.isArray(z.seasonHistory)
+    ?z.seasonHistory:[];
+  z.jobs=Array.isArray(z.jobs)?z.jobs:[];
+  z.playoff=Array.isArray(z.playoff)?z.playoff:[];
+  z.hours=Number.isFinite(z.hours)?z.hours:600;
+
+  z.settings={
+    nil:'balanced',
+    recruiting:'assisted',
+    mode:'serious',
+    recruitingBoost:0,
+    developmentBoost:0,
+    gameBoost:0,
+    ...z.settings
+  };
+
+  for(const t of z.teams){
+    t.roster=Array.isArray(t.roster)?t.roster:[];
+    t.history=Array.isArray(t.history)?t.history:[];
+    t.classHistory=Array.isArray(t.classHistory)
+      ?t.classHistory:[];
+    t.wins=t.wins||0;
+    t.losses=t.losses||0;
+    t.cwins=t.cwins||0;
+    t.closses=t.closses||0;
+  }
+
+  for(const x of z.coaches){
+    x.history=Array.isArray(x.history)?x.history:[];
+    x.skills={
+      Recruiter:0,
+      Developer:0,
+      Tactician:0,
+      CEO:0,
+      ...x.skills
+    };
+    x.career={
+      wins:0,
+      losses:0,
+      conferenceWins:0,
+      conferenceTitles:0,
+      bowlWins:0,
+      playoffWins:0,
+      titles:0,
+      top5:0,
+      no1:0,
+      fiveStars:0,
+      ...x.career
+    };
+  }
+
+  return z;
+}
+
+function spotlight(eyebrow,title,description){
+  const d=document.getElementById('dlg');
+  if(!d)return;
+
+  d.innerHTML=`
+    <div class="spotlight">
+      <div class="trophy">🏆</div>
+      <div class="eyebrow">${esc(eyebrow)}</div>
+      <h1>${esc(title)}</h1>
+      <p>${esc(description)}</p>
+      <button onclick="
+        document.getElementById('dlg').close()
+      ">Continue</button>
+    </div>
+  `;
+
+  if(!d.open)d.showModal();
+}
+
+function newGame(){
+  if(S&&!confirm(
+    'Start a new dynasty? Your current local save '+
+    'will be replaced. Export it first if needed.'
+  ))return;
+
+  const mode=prompt(
+    'Choose a mode:\n'+
+    '1 = Serious Simulation\n'+
+    '2 = Arcade / Chaos',
+    '1'
+  );
+
+  if(mode===null)return;
+
+  S=create();
+  S.settings.mode=mode.trim()==='2'
+    ?'arcade':'serious';
+
+  const name=prompt(
+    'Enter your head coach name:',
+    'Coach'
+  );
+
+  if(name&&name.trim()){
+    user().name=name.trim().slice(0,45);
+  }
+
+  const schools=S.teams
+    .map(t=>t.name)
+    .join(', ');
+
+  const selected=prompt(
+    'Enter the name of your starting school.\n'+
+    'Example: Arkansas State, Alabama, Notre Dame',
+    'Arkansas State'
+  );
+
+  if(selected){
+    const chosen=S.teams.find(
+      t=>t.name.toLowerCase()===
+      selected.trim().toLowerCase()
+    );
+
+    if(chosen){
+      const old=team();
+      const original=c(chosen.coach);
+
+      if(original&&original.id!==S.user){
+        original.retired=true;
+      }
+
+      if(old.id!==chosen.id){
+        hireReplacement(old);
+      }
+
+      user().teamId=chosen.id;
+      chosen.coach=S.user;
+    }else{
+      alert(
+        'School not recognized. Starting at Arkansas State.'
+      );
+    }
+  }
+
+  updateRankings();
+  tab='Office';
+  save();
+}
+
+function button(label,action,disabled=false){
+  return `<button ${disabled?'disabled':''}
+    onclick="${action}">${esc(label)}</button>`;
+}
+
+function stat(label,value){
+  return `
+    <div class="card">
+      <div class="muted">${esc(label)}</div>
+      <div class="big">${esc(value)}</div>
+    </div>
+  `;
+}
+
+function notice(message){
+  return `<section class="muted">${esc(message)}</section>`;
+}
+
+function setTab(next){
+  tab=next;
+  filter='';
+  render();
+}
+
+function renderNav(){
+  const n=document.getElementById('nav');
+
+  n.innerHTML=NAV_ITEMS.map(x=>`
+    <button
+      style="${
+        tab===x
+          ?'border-color:#eac979;color:#eac979'
+          :''
+      }"
+      onclick="setTab('${x}')"
+    >${esc(x)}</button>
+  `).join('');
+}
+
+function renderOffice(){
+  const t=team();
+  const hc=user();
+
+  const next=S.games.find(
+    g=>!g.played&&
+      (g.a===t.id||g.b===t.id)
+  );
+
+  const latest=S.news.slice(0,10);
+
+  return `
+    <h2>${esc(t.name)} Football</h2>
+
+    <div class="row">
+      <span class="pill">${esc(t.conf)}</span>
+      <span class="pill">Season ${S.year}</span>
+      <span class="pill">
+        ${S.settings.mode==='arcade'
+          ?'ARCADE':'SERIOUS'}
+      </span>
+      <span class="pill">
+        Week ${Math.min(S.week,12)}
+      </span>
+    </div>
+
+    <div class="grid">
+      ${stat('Overall Record',
+        `${t.wins}-${t.losses}`)}
+      ${stat('Conference',
+        `${t.cwins}-${t.closses}`)}
+      ${stat('National Ranking',
+        t.rank?`#${t.rank}`:'Unranked')}
+      ${stat('Recruiting Hours',
+        S.hours)}
+      ${stat('Head Coach',
+        hc.name)}
+      ${stat('Career Legacy Points',
+        scoreCoach(hc).toLocaleString())}
+    </div>
+
+    <section class="mode">
+      <h3>Dynasty Headquarters</h3>
+
+      <p>
+        ${S.week<=12
+          ?next
+            ?`Next opponent:
+              <strong>${esc(
+                S.teams[
+                  next.a===t.id?next.b:next.a
+                ].name
+              )}</strong>`
+            :'No game scheduled this week.'
+          :S.week===13
+            ?'Regular season complete.'
+            :'Postseason complete.'}
+      </p>
+
+      <div class="row">
+        ${
+          S.week<=12
+            ?button('Simulate Next Week',
+              'advanceWeek()',hc.retired)
+            :S.week===13
+              ?button('Run Postseason',
+                'finishSeason()',hc.retired)
+              :button('Start Next Season',
+                'startNextSeason()',hc.retired)
+        }
+
+        ${button('Recruiting Board',
+          "setTab('Recruiting')")}
+
+        ${button('Roster',
+          "setTab('Roster')")}
+      </div>
+    </section>
+
+    <section>
+      <h3>Latest Headlines</h3>
+      ${latest.length
+        ?latest.map(x=>`
+          <p>• ${esc(x)}</p>
+        `).join('')
+        :'<p>No headlines yet.</p>'}
+    </section>
+  `;
+}
+
+function renderSchedule(){
+  const t=team();
+  const games=S.games.filter(
+    g=>g.a===t.id||g.b===t.id
+  );
+
+  return `
+    <h2>${esc(t.name)} Schedule</h2>
+
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Opponent</th>
+            <th>Type</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${games.map(g=>{
+            const other=S.teams[
+              g.a===t.id?g.b:g.a
+            ];
+
+            return `
+              <tr>
+                <td>${g.week}</td>
+                <td>${esc(other.name)}</td>
+                <td>
+                  ${g.conference?'Conference':'Nonconference'}
+                </td>
+                <td>
+                  ${g.played
+                    ?`${g.winner===t.id?'W':'L'} ·
+                      ${g.a===t.id?g.sa:g.sb}-
+                      ${g.a===t.id?g.sb:g.sa}`
+                    :'Upcoming'}
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderStandings(){
+  const conferences=Object.keys(groups);
+
+  return `
+    <h2>National Standings</h2>
+
+    <section>
+      <h3>Top 25</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>School</th>
+            <th>Conference</th>
+            <th>Record</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rankings().slice(0,25).map((t,i)=>`
+            <tr>
+              <td>#${i+1}</td>
+              <td>${esc(t.name)}</td>
+              <td>${esc(t.conf)}</td>
+              <td>${t.wins}-${t.losses}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <h3>Conference Standings</h3>
+
+    ${conferences.map(conf=>`
+      <section>
+        <h3>${esc(conf)}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>School</th>
+              <th>Conference</th>
+              <th>Overall</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${conferenceStandings(conf).map(t=>`
+              <tr>
+                <td>${esc(t.name)}</td>
+                <td>${t.cwins}-${t.closses}</td>
+                <td>${t.wins}-${t.losses}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </section>
+    `).join('')}
+  `;
+}
+
+function renderRecruiting(){
+  const prospects=S.recruits.filter(r=>{
+    if(board==='Targets'&&!r.target)return false;
+    if(board==='Offers'&&!r.offer)return false;
+    if(board==='Committed'&&r.committed===null)
+      return false;
+
+    const q=filter.toLowerCase();
+
+    return !q||
+      r.name.toLowerCase().includes(q)||
+      r.pos.toLowerCase().includes(q)||
+      r.home.toLowerCase().includes(q);
+  });
+
+  const myCommits=S.recruits.filter(
+    r=>r.committed===team().id
+  );
+
+  return `
+    <h2>Recruiting Headquarters</h2>
+
+    <div class="grid">
+      ${stat('Available Hours',S.hours)}
+      ${stat('Targets',S.recruits.filter(
+        r=>r.target
+      ).length)}
+      ${stat('Offers',S.recruits.filter(
+        r=>r.offer
+      ).length)}
+      ${stat('Commitments',myCommits.length)}
+    </div>
+
+    <section>
+      <div class="row">
+        <input
+          placeholder="Search name, position or state"
+          value="${esc(filter)}"
+          oninput="
+            filter=this.value;
+            document.getElementById(
+              'recruit-results'
+            ).innerHTML=recruitRows();
+          "
+        >
+
+        <select onchange="
+          board=this.value;
+          render();
+        ">
+          ${['All','Targets','Offers','Committed']
+            .map(x=>`
+              <option
+                ${board===x?'selected':''}
+              >${x}</option>
+            `).join('')}
+        </select>
+      </div>
+
+      <p class="muted">
+        All prospects are graduating high school seniors.
+        Scouting reveals ratings and development potential.
+        Assistants work assigned prospects each week.
+      </p>
+
+      <div id="recruit-results">
+        ${recruitRows()}
+      </div>
+    </section>
+  `;
+}
+
+function recruitRows(){
+  const q=filter.toLowerCase();
+
+  const prospects=S.recruits.filter(r=>{
+    if(board==='Targets'&&!r.target)return false;
+    if(board==='Offers'&&!r.offer)return false;
+    if(board==='Committed'&&r.committed===null)
+      return false;
+
+    return !q||
+      r.name.toLowerCase().includes(q)||
+      r.pos.toLowerCase().includes(q)||
+      r.home.toLowerCase().includes(q);
+  }).slice(0,150);
+
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Prospect</th>
+          <th>Stars</th>
+          <th>Interest</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${prospects.map(r=>`
+          <tr>
+            <td>#${r.rank}</td>
+            <td>
+              <button onclick="
+                showRecruit('${r.id}')
+              ">
+                ${esc(r.name)}
+              </button>
+              <div class="muted">
+                ${r.pos} · ${r.home}
+              </div>
+            </td>
+            <td>${'★'.repeat(r.stars)}</td>
+            <td>
+              ${Math.round(influence(r,team()))}
+            </td>
+            <td>
+              ${r.committed===null
+                ?r.offer?'Offered':'Open'
+                :esc(S.teams[r.committed].name)}
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    ${prospects.length===150
+      ?'<p class="muted">Showing first 150 matches. Narrow your search for more.</p>'
+      :''}
+  `;
+}
+
+function renderRoster(){
+  const t=team();
+
+  const roster=[...t.roster].sort((a,b)=>{
+    return a.pos.localeCompare(b.pos)||
+      b.ovr-a.ovr;
+  });
+
+  return `
+    <h2>${esc(t.name)} Roster</h2>
+
+    <div class="grid">
+      ${stat('Players',roster.length)}
+      ${stat('Average OVR',
+        Math.round(
+          roster.reduce((n,p)=>n+p.ovr,0)/
+          Math.max(1,roster.length)
+        ))}
+      ${stat('Highest OVR',
+        Math.max(...roster.map(p=>p.ovr)))}
+    </div>
+
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Position</th>
+            <th>Year</th>
+            <th>OVR</th>
+            <th>Potential</th>
+            <th>Development</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${roster.map(p=>`
+            <tr>
+              <td>${esc(p.name)}</td>
+              <td>${p.pos}</td>
+              <td>${p.yr}</td>
+              <td>${p.ovr}</td>
+              <td>${p.pot}</td>
+              <td>${esc(p.dev)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderCoaching(){
+  const hc=user();
+  const t=team();
+
+  const skills=Object.entries(hc.skills);
+
+  return `
+    <h2>Coaching Office</h2>
+
+    <section class="mode">
+      <h3>${esc(hc.name)}</h3>
+
+      <p>
+        Head Coach · ${esc(t.name)}<br>
+        Age ${hc.age} · Level ${hc.level}<br>
+        Career ${hc.career.wins}-${hc.career.losses}<br>
+        Simulated Seasons ${hc.history.length}/35
+      </p>
+
+      <div class="grid">
+        ${stat('Recruiting',hc.recruit)}
+        ${stat('Development',hc.develop)}
+        ${stat('Coaching Ability',hc.skill)}
+        ${stat('Skill Points',hc.points)}
+      </div>
+
+      <h3>Coaching Skill Tree</h3>
+
+      ${skills.map(([name,value])=>`
+        <div class="row">
+          <strong>${name}</strong>
+          <span class="pill">${value}/5</span>
+          ${button(
+            'Upgrade',
+            `trainCoach('${name}')`,
+            hc.points<=0||value>=5
+          )}
+        </div>
+      `).join('')}
+    </section>
+
+    <section>
+      <h3>Current Staff</h3>
+      <p>
+        Offensive Coordinator:
+        <strong>${esc(c(t.oc)?.name||'Vacant')}</strong>
+      </p>
+      <p>
+        Defensive Coordinator:
+        <strong>${esc(c(t.dc)?.name||'Vacant')}</strong>
+      </p>
+    </section>
+
+    <section>
+      <h3>Career Decisions</h3>
+
+      <p>
+        Change programs to pursue a new challenge.
+        Your simulated career remains subject to the
+        35-season limit.
+      </p>
+
+      <select id="program-select">
+        ${S.teams.map(x=>`
+          <option value="${x.id}"
+            ${x.id===t.id?'selected':''}>
+            ${esc(x.name)}
+          </option>
+        `).join('')}
+      </select>
+
+      <div class="row">
+        <button onclick="
+          changeProgram(
+            document.getElementById(
+              'program-select'
+            ).value
+          )
+        ">Accept New Job</button>
+
+        <button onclick="retireDynasty()">
+          Retire Coach
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h3>Recent Coaching Carousel</h3>
+
+      ${S.jobs.length
+        ?S.jobs.map(j=>`
+          <p>
+            ${esc(j.school)}:
+            ${esc(j.old)} → ${esc(j.next)}
+          </p>
+        `).join('')
+        :notice('No recent changes.')}
+    </section>
+  `;
+}
+
+function renderHall(){
+  const simulated=S.coaches
+    .filter(x=>x.role==='HC')
+    .sort((a,b)=>scoreCoach(b)-scoreCoach(a))
+    .slice(0,100);
+
+  return `
+    <h2>College Football Hall of Fame</h2>
+
+    <p class="muted">
+      Historical legends and simulated careers are
+      separated so fictional results are not presented
+      as authentic historical statistics.
+    </p>
+
+    <section>
+      <h3>Historical Coaching Legends</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Coach</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>National Titles</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${HISTORICAL_LEGENDS.map(x=>`
+            <tr>
+              <td>
+                <strong>${esc(x.name)}</strong>
+                <div class="muted">
+                  ${esc(x.school)}
+                </div>
+              </td>
+              <td>${x.wins}</td>
+              <td>${x.losses}</td>
+              <td>${x.titles}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3>Simulated Coaching Legacy Rankings</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Coach</th>
+            <th>Record</th>
+            <th>Titles</th>
+            <th>Legacy</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${simulated.map((x,i)=>`
+            <tr>
+              <td>${i+1}</td>
+              <td>
+                ${esc(x.name)}
+                ${x.id===S.user?' ★':''}
+                ${x.retired?' (Retired)':''}
+              </td>
+              <td>
+                ${x.career.wins}-${x.career.losses}
+              </td>
+              <td>${x.career.titles}</td>
+              <td>
+                ${scoreCoach(x).toLocaleString()}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3>Your Coaching Legacy</h3>
+
+      <div class="grid">
+        ${stat('Wins',user().career.wins)}
+        ${stat('Conference Titles',
+          user().career.conferenceTitles)}
+        ${stat('Bowl Wins',
+          user().career.bowlWins)}
+        ${stat('Playoff Wins',
+          user().career.playoffWins)}
+        ${stat('National Titles',
+          user().career.titles)}
+        ${stat('Top-5 Recruiting Classes',
+          user().career.top5)}
+      </div>
+    </section>
+  `;
+}
+
+function arcadePlayer(){
+  if(S.settings.mode!=='arcade'){
+    return alert('Arcade mode only.');
+  }
+
+  const name=prompt(
+    'Player name:',
+    'Five Star Prospect'
+  );
+
+  if(!name)return;
+
+  const pos=prompt(
+    'Position (QB, HB, WR, TE, OT, OG, C, DE, DT, OLB, MLB, CB, FS, SS):',
+    'QB'
+  );
+
+  if(!pos)return;
+
+  const ovr=Number(prompt(
+    'Overall rating (40-99):',
+    '95'
+  ));
+
+  if(!Number.isFinite(ovr))return;
+
+  const p=player(
+    pos.toUpperCase().slice(0,3),
+    1,
+    Math.max(40,Math.min(99,ovr))
+  );
+
+  p.name=name.trim().slice(0,45);
+  p.ovr=Math.max(40,Math.min(99,Math.round(ovr)));
+  p.pot=99;
+  p.dev='Elite';
+  p.origin={
+    year:S.year,
+    stars:5,
+    arcade:true
+  };
+
+  team().roster.push(p);
+
+  addNews(
+    `ARCADE: ${p.name} joins ${team().name}!`
+  );
+
+  save();
+}
+
+function arcadeCoach(){
+  if(S.settings.mode!=='arcade'){
+    return alert('Arcade mode only.');
+  }
+
+  const name=prompt(
+    'Enter your coach name:',
+    user().name
+  );
+
+  if(name&&name.trim()){
+    user().name=name.trim().slice(0,45);
+  }
+
+  const age=Number(prompt(
+    'Coach age:',
+    String(user().age)
+  ));
+
+  if(Number.isFinite(age)&&age>=18&&age<=90){
+    user().age=Math.round(age);
+  }
+
+  const scheme=prompt(
+    'Offensive philosophy:',
+    user().scheme
+  );
+
+  if(scheme&&scheme.trim()){
+    user().scheme=scheme.trim().slice(0,40);
+  }
+
+  save();
+}
+
+function arcadeBoost(type,amount){
+  if(S.settings.mode!=='arcade'){
+    return alert('Arcade mode only.');
+  }
+
+  const hc=user();
+
+  if(type==='recruit'){
+    hc.recruit=Math.max(
+      1,Math.min(99,hc.recruit+amount)
+    );
+  }
+
+  if(type==='develop'){
+    hc.develop=Math.max(
+      1,Math.min(99,hc.develop+amount)
+    );
+
+    for(const p of team().roster){
+      p.pot=Math.min(99,p.pot+amount);
+    }
+  }
+
+  if(type==='skill'){
+    hc.skill=Math.max(
+      1,Math.min(99,hc.skill+amount)
+    );
+  }
+
+  save();
+}
+
+function renderArcade(){
+  const enabled=S.settings.mode==='arcade';
+
+  return `
+    <h2>Arcade / Chaos Lab</h2>
+
+    <section class="arcade">
+      <h3>
+        ${enabled?'Arcade Mode Active':'Serious Mode Active'}
+      </h3>
+
+      <p>
+        Serious and Arcade dynasties use the same
+        simulation engine. Arcade mode unlocks
+        custom players and coaching boosts.
+      </p>
+
+      ${enabled?`
+        <div class="row">
+          ${button('Create a Player',
+            'arcadePlayer()')}
+          ${button('Edit Your Coach',
+            'arcadeCoach()')}
+        </div>
+
+        <h3>Coaching Boosts</h3>
+
+        <div class="row">
+          ${button('+10 Recruiting',
+            "arcadeBoost('recruit',10)")}
+          ${button('+10 Development',
+            "arcadeBoost('develop',10)")}
+          ${button('+10 Coaching Ability',
+            "arcadeBoost('skill',10)")}
+        </div>
+      `:`
+        <p class="muted">
+          Start a new dynasty and choose option 2
+          to unlock Arcade controls.
+        </p>
+      `}
+    </section>
+  `;
+}
+
+function renderHistory(){
+  return `
+    <h2>Dynasty History</h2>
+
+    <section>
+      <h3>Completed Seasons</h3>
+
+      ${S.seasonHistory.length?`
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Your School</th>
+              <th>Record</th>
+              <th>National Champion</th>
+              <th>Recruiting</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${S.seasonHistory.map(x=>`
+              <tr>
+                <td>${x.year}</td>
+                <td>${esc(x.userSchool)}</td>
+                <td>${x.wins}-${x.losses}</td>
+                <td>${esc(x.champion)}</td>
+                <td>#${x.recruitingRank}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `:notice('Complete a season to begin your history.')}
+    </section>
+
+    <section>
+      <h3>National Champions</h3>
+
+      ${S.champions.length
+        ?S.champions.map(x=>`
+          <p>
+            <strong>${x.year}</strong> —
+            ${esc(S.teams[x.team]?.name||'Unknown')}
+            <span class="muted">
+              ${esc(x.score||'')}
+            </span>
+          </p>
+        `).join('')
+        :notice('No national champions crowned yet.')}
+    </section>
+  `;
+}
+
+function render(){
+  if(!S)return;
+
+  renderNav();
+
+  const sub=document.getElementById('sub');
+
+  sub.textContent=
+    `${S.year} · ${team().name} · `+
+    `${S.settings.mode==='arcade'
+      ?'Arcade':'Serious'} Dynasty`;
+
+  const pages={
+    'Office':renderOffice,
+    'Schedule':renderSchedule,
+    'Standings':renderStandings,
+    'Recruiting':renderRecruiting,
+    'Roster':renderRoster,
+    'Coaching':renderCoaching,
+    'Hall of Fame':renderHall,
+    'Arcade':renderArcade,
+    'History':renderHistory
+  };
+
+  const app=document.getElementById('app');
+
+  try{
+    app.innerHTML=(pages[tab]||renderOffice)();
+  }catch(error){
+    console.error(error);
+
+    app.innerHTML=`
+      <section>
+        <h2>Screen Error</h2>
+        <p>${esc(error.message)}</p>
+        <button onclick="setTab('Office')">
+          Return to Office
+        </button>
+      </section>
+    `;
+  }
+}
+
+function runAudit(){
+  const problems=[];
+
+  if(!S){
+    problems.push('No active dynasty.');
+  }else{
+    if(S.teams.length!==138){
+      problems.push(
+        `Expected 138 schools; found ${S.teams.length}.`
+      );
+    }
+
+    if(!S.coaches.find(x=>x.id===S.user)){
+      problems.push('User coach missing.');
+    }
+
+    if(S.recruits.length!==650){
+      problems.push(
+        `Expected 650 recruits; found ${S.recruits.length}.`
+      );
+    }
+
+    if(!Array.isArray(S.games)){
+      problems.push('Schedule missing.');
+    }
+
+    if(!document.getElementById('modal')){
+      problems.push('Recruiting dialog missing.');
+    }
+
+    if(!document.getElementById('dlg')){
+      problems.push('Celebration dialog missing.');
+    }
+  }
+
+  alert(
+    problems.length
+      ?'AUDIT FINDINGS:\n'+problems.join('\n')
+      :'Basic data audit passed.\n'+
+       'This does not verify all game rules or historical data.'
+  );
+}
+
+/* Save startup */
+(function initializeSaturdayDynasty(){
+  try{
+    const stored=localStorage.getItem(KEY);
+
+    if(stored){
+      S=migrate(JSON.parse(stored));
+    }else{
+      S=create();
+      S.settings.mode='serious';
+      localStorage.setItem(
+        KEY,JSON.stringify(S)
+      );
+    }
+  }catch(error){
+    console.error('Save initialization failed:',error);
+
+    S=create();
+    S.settings.mode='serious';
+
+    alert(
+      'An existing save could not be loaded. '+
+      'A new dynasty has been created in memory. '+
+      'Export or inspect your old save before replacing it.'
+    );
+  }
+
+  updateRankings();
+  render();
+})();
+
+</script>
+</body>
+</html>
+
+
